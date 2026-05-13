@@ -32,54 +32,47 @@ public class FileManager {
 
     /**
      * 上传图片
-     * @param multipartFile
-     * @param uploadPathPrefix
+     *
+     * @param multipartFile    文件
+     * @param uploadPathPrefix 上传路径前缀
      * @return
      */
     public UploadPictureResult uploadPicture(MultipartFile multipartFile, String uploadPathPrefix) {
-        //校验文件
+        // 校验图片
         validPicture(multipartFile);
-        //图片上传地址
-        String originalFilename = multipartFile.getOriginalFilename();
+        // 图片上传地址
         String uuid = RandomUtil.randomString(16);
+        String originFilename = multipartFile.getOriginalFilename();
         String uploadFilename = String.format("%s_%s.%s", DateUtil.formatDate(new Date()), uuid,
-                FileUtil.getSuffix(originalFilename));
-        String uploadPath = String.format("%s/%s", uploadPathPrefix, uploadFilename);
-
-        //创建需要保存本地的文件,并把本地文件上传到本地
+                FileUtil.getSuffix(originFilename));
+        String uploadPath = String.format("/%s/%s", uploadPathPrefix, uploadFilename);
         File file = null;
         try {
+            // 创建临时文件
             file = File.createTempFile(uploadPath, null);
-            // 将文件写入到临时文件中
             multipartFile.transferTo(file);
-            // 上传文件到COS并返回上传结果
-            PutObjectResult putObjectResult = cosManager.putObject(uploadPath, file);
-            //获取图片信息对象
+            // 上传图片
+            PutObjectResult putObjectResult = cosManager.putPictureObject(uploadPath, file);
             ImageInfo imageInfo = putObjectResult.getCiUploadResult().getOriginalInfo().getImageInfo();
-
-            //获取图片宽高信息
-            int width = imageInfo.getWidth();
-            int height = imageInfo.getHeight();
-            double picScale = NumberUtil.round(width * 1.0 / height ,2).doubleValue();
-            //封装返回结果
+            // 封装返回结果
             UploadPictureResult uploadPictureResult = new UploadPictureResult();
-            uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + uploadPath);
-            uploadPictureResult.setPicName(FileUtil.getName(originalFilename));
-            uploadPictureResult.setPicSize(FileUtil.size(file));
-            uploadPictureResult.setPicWidth(width);
-            uploadPictureResult.setPicHeight(height);
+            int picWidth = imageInfo.getWidth();
+            int picHeight = imageInfo.getHeight();
+            double picScale = NumberUtil.round(picWidth * 1.0 / picHeight, 2).doubleValue();
+            uploadPictureResult.setPicName(FileUtil.mainName(originFilename));
+            uploadPictureResult.setPicWidth(picWidth);
+            uploadPictureResult.setPicHeight(picHeight);
             uploadPictureResult.setPicScale(picScale);
             uploadPictureResult.setPicFormat(imageInfo.getFormat());
-
-            //返回可访问的url
+            uploadPictureResult.setPicSize(FileUtil.size(file));
+            uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + uploadPath);
             return uploadPictureResult;
         } catch (Exception e) {
-            log.error("图片上传到COS失败",e);
+            log.error("图片上传到对象存储失败", e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
         } finally {
             this.deleteTempFile(file);
         }
-
     }
 
     /**
