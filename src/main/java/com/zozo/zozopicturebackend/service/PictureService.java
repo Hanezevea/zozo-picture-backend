@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zozo.zozopicturebackend.model.dto.picture.PictureQueryRequest;
 import com.zozo.zozopicturebackend.model.dto.picture.PictureReviewRequest;
+import com.zozo.zozopicturebackend.model.dto.picture.PictureUploadByBatchRequest;
 import com.zozo.zozopicturebackend.model.dto.picture.PictureUploadRequest;
 import com.zozo.zozopicturebackend.model.entity.Picture;
 import com.zozo.zozopicturebackend.model.entity.User;
@@ -70,5 +71,26 @@ public interface PictureService extends IService<Picture> {
      */
     void doPictureReview(PictureReviewRequest pictureReviewRequest, User loginUser);
 
+
+    /**
+     * 填充审核字段，管理员自动审核
+     * @param picture
+     * @param loginUser
+     */
     void fillReviewParams(Picture picture, User loginUser);
+
+
+
+    /**
+     * 批量抓取和创建图片
+     *
+     * @param pictureUploadByBatchRequest
+     * @param loginUser
+     * @return 成功创建的图片数
+     */
+    Integer uploadPictureByBatch(
+            PictureUploadByBatchRequest pictureUploadByBatchRequest,
+            User loginUser
+    );
+
 }

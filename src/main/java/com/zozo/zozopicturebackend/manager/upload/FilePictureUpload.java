@@ -14,6 +14,12 @@ import java.util.List;
 public class FilePictureUpload extends PictureUploadTemplate {
 
     @Override
+    protected String getFileType(Object inputSource) {
+        MultipartFile multipartFile = (MultipartFile) inputSource;
+        return FileUtil.getSuffix(multipartFile.getOriginalFilename());
+    }
+
+    @Override
     protected void validPicture(Object inputSource) {
         MultipartFile multipartFile = (MultipartFile) inputSource;
         ThrowUtils.throwIf(multipartFile == null, ErrorCode.PARAMS_ERROR, "文件不能为空");

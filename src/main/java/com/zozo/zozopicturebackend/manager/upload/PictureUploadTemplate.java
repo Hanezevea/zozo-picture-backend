@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import com.qcloud.cos.model.PutObjectResult;
 import com.qcloud.cos.model.ciModel.persistence.ImageInfo;
 import com.zozo.zozopicturebackend.config.CosClientConfig;
@@ -33,13 +34,20 @@ public abstract class PictureUploadTemplate {
         // 1. 校验图片  
         validPicture(inputSource);  
   
-        // 2. 图片上传地址  
+        // 2. 图片上传地址
+
+        // todo 修改文件后缀，有点bug后缀是乱码放入数据库访问不了
         String uuid = RandomUtil.randomString(16);
-        String originFilename = getOriginFilename(inputSource);  
+        String originFilename = getOriginFilename(inputSource);
+        String fileSuffix = FileUtil.getSuffix(originFilename);
+
+        if(StrUtil.isBlank(fileSuffix)) {
+            fileSuffix = this.getFileType(inputSource);
+        }
         String uploadFilename = String.format("%s_%s.%s", DateUtil.formatDate(new Date()), uuid,
-                FileUtil.getSuffix(originFilename));
-        String uploadPath = String.format("/%s/%s", uploadPathPrefix, uploadFilename);  
-  
+                fileSuffix);
+        String uploadPath = String.format("/%s/%s", uploadPathPrefix, uploadFilename);
+
         File file = null;
         try {  
             // 3. 创建临时文件  
@@ -60,8 +68,12 @@ public abstract class PictureUploadTemplate {
             // 6. 清理临时文件  
             deleteTempFile(file);  
         }  
-    }  
-  
+    }
+    /**
+     * 获取文件类型
+     */
+    protected abstract String getFileType(Object inputSource);
+
     /**  
      * 校验输入源（本地文件或 URL）  
      */  
