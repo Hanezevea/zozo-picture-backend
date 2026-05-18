@@ -10,6 +10,7 @@ import com.zozo.zozopicturebackend.model.dto.picture.PictureUploadRequest;
 import com.zozo.zozopicturebackend.model.entity.Picture;
 import com.zozo.zozopicturebackend.model.entity.User;
 import com.zozo.zozopicturebackend.model.vo.PictureVO;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -93,4 +94,6 @@ public interface PictureService extends IService<Picture> {
             User loginUser
     );
 
+    @Async
+    void clearPictureFile(Picture oldPicture);
 }
