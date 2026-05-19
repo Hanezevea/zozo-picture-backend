@@ -1,4 +1,4 @@
-package com.zozo.zozopicturebackend.model;
+package com.zozo.zozopicturebackend.model.vo;
 
 
 import lombok.Data;

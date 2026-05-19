@@ -3,10 +3,7 @@ package com.zozo.zozopicturebackend.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zozo.zozopicturebackend.model.dto.picture.PictureQueryRequest;
-import com.zozo.zozopicturebackend.model.dto.picture.PictureReviewRequest;
-import com.zozo.zozopicturebackend.model.dto.picture.PictureUploadByBatchRequest;
-import com.zozo.zozopicturebackend.model.dto.picture.PictureUploadRequest;
+import com.zozo.zozopicturebackend.model.dto.picture.*;
 import com.zozo.zozopicturebackend.model.entity.Picture;
 import com.zozo.zozopicturebackend.model.entity.User;
 import com.zozo.zozopicturebackend.model.vo.PictureVO;
@@ -94,6 +91,32 @@ public interface PictureService extends IService<Picture> {
             User loginUser
     );
 
+    /**
+     * 清除对象云的旧图片
+     * @param oldPicture
+     */
     @Async
     void clearPictureFile(Picture oldPicture);
+
+    /**
+     * 删除图片
+     * @param pictureId
+     * @param loginUser
+     */
+    void deletePicture(long pictureId, User loginUser);
+
+    /**
+     * 编辑图片
+     * @param pictureEditRequest
+     * @param loginUser
+     */
+
+    void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
+
+    /**
+     * 校验操作图片的权限
+     * @param loginUser
+     * @param picture
+     */
+    void checkPictureAuth(User loginUser, Picture picture);
 }
