@@ -15,6 +15,7 @@ import com.zozo.zozopicturebackend.exception.BusinessException;
 import com.zozo.zozopicturebackend.exception.ErrorCode;
 import com.zozo.zozopicturebackend.manager.CosManager;
 import com.zozo.zozopicturebackend.model.dto.file.UploadPictureResult;
+import com.zozo.zozopicturebackend.utils.ColorTransformUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
@@ -74,7 +75,7 @@ public abstract class PictureUploadTemplate {
                    thumbnailCiobject = objectList.get(1);
                 }
                 //封装图片压缩后的返回结果
-                return buildResult(originFilename, compressedCiobject, thumbnailCiobject);
+                return buildResult(originFilename, compressedCiobject, thumbnailCiobject, imageInfo);
             }
 
             // 5. 封装返回结果
@@ -108,7 +109,7 @@ public abstract class PictureUploadTemplate {
     protected abstract void processFile(Object inputSource, File file) throws Exception;
 
 
-    private UploadPictureResult buildResult(String originFilename, CIObject compressedCiObject, CIObject thumbnailCiObject) {
+    private UploadPictureResult buildResult(String originFilename, CIObject compressedCiObject, CIObject thumbnailCiObject, ImageInfo imageInfo) {
         UploadPictureResult uploadPictureResult = new UploadPictureResult();
         //计算宽高
         int picWidth = compressedCiObject.getWidth();
@@ -120,6 +121,8 @@ public abstract class PictureUploadTemplate {
         uploadPictureResult.setPicHeight(picHeight);
         uploadPictureResult.setPicScale(picScale);
         uploadPictureResult.setPicFormat(compressedCiObject.getFormat());
+        uploadPictureResult.setPicColor(imageInfo.getAve());
+
         uploadPictureResult.setPicSize(compressedCiObject.getSize().longValue());
         // 设置图片为压缩后的地址
         uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + compressedCiObject.getKey());
@@ -142,8 +145,9 @@ public abstract class PictureUploadTemplate {
         uploadPictureResult.setPicHeight(picHeight);  
         uploadPictureResult.setPicScale(picScale);  
         uploadPictureResult.setPicFormat(imageInfo.getFormat());  
-        uploadPictureResult.setPicSize(FileUtil.size(file));  
-        uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + uploadPath);  
+        uploadPictureResult.setPicSize(FileUtil.size(file));
+        uploadPictureResult.setPicColor(imageInfo.getAve());
+        uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + uploadPath);
         return uploadPictureResult;  
     }  
   
